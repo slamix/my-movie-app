@@ -1,25 +1,11 @@
 import { useSelector, useDispatch } from "react-redux"
 import { useEffect } from "react"
-import { Group } from "@vkontakte/vkui";
 import { fetchMovies } from "../hooks/useMovies";
 import { addFilms } from "../slices/moviesSlice";
 import MovieCard from "./MovieCard";
 import type { APIMovie } from "../api/types";
 import type { RootState } from "../slices";
-
-const containerStyles: React.CSSProperties = {
-  width: '100%',
-  maxWidth: 960,
-  margin: '0 auto',
-  boxSizing: 'border-box',
-};
-
-const gridStyles: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-  gap: 16,
-  justifyItems: 'center',
-};
+import Box from '@mui/material/Box';
 
 const MoviesList = () => {
   const movies = useSelector((state: RootState) => state.movies.movies);
@@ -38,18 +24,29 @@ const MoviesList = () => {
   }, [dispatch]);
 
   return (
-    <Group style={{ background: 'none', boxShadow: 'none', padding: 0, margin: 0 }}>
-      <div style={containerStyles}>
-        <div style={gridStyles}>
-          {movies.map((movie: APIMovie) => (
-            <MovieCard
-              key={movie.id}
-              movie={movie}
-            />
-          ))}
-        </div>
-      </div>
-    </Group>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, sm: 4 }, py: 2 }}>
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: {
+            xs: 'repeat(1, 1fr)',
+            sm: 'repeat(2, 1fr)',
+            md: 'repeat(3, 1fr)',
+            lg: 'repeat(4, 1fr)',
+          },
+          gap: 3,
+          justifyContent: 'start',
+          alignItems: 'stretch',
+          minHeight: 320,
+        }}
+      >
+        {movies.map((movie: APIMovie) => (
+          <Box key={movie.id} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', minWidth: 0 }}>
+            <MovieCard movie={movie} maxWidth={320} />
+          </Box>
+        ))}
+      </Box>
+    </Box>
   );
 }
 

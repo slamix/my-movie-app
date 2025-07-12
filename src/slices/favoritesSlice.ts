@@ -1,13 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { APIMovie } from "../api/types";
 
+
 interface FavoritesState {
   favorites: APIMovie[];
 }
 
+const raw = typeof window !== 'undefined'
+  ? localStorage.getItem('favorites')
+  : null;
+
 const initialState: FavoritesState = {
-  favorites: [],
-}
+  favorites: raw
+    ? JSON.parse(raw) as APIMovie[]
+    : []
+};
 
 const favoritesSlice = createSlice({
   name: 'favorites',
@@ -15,9 +22,11 @@ const favoritesSlice = createSlice({
   reducers: {
     addFavorite: (state, { payload }) => {
       state.favorites.push(payload);
+      localStorage.setItem('favorites', JSON.stringify(state.favorites));
     },
     removeFavorite: (state, { payload }) => {
       state.favorites = state.favorites.filter((favorite) => favorite.id !== payload.id);
+      localStorage.setItem('favorites', JSON.stringify(state.favorites));
     },
   },
 });

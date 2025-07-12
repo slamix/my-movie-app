@@ -7,9 +7,15 @@ interface ActiveMovieState {
   activeMovie: ActiveMovie;
 }
 
+const raw = typeof window !== 'undefined'
+  ? localStorage.getItem('activeMovie')
+  : null;
+
 const initialState: ActiveMovieState = {
-  activeMovie: null
-}
+  activeMovie: raw
+    ? JSON.parse(raw) as APIMovie
+    : null
+};
 
 const activeMovieSlice = createSlice({
   name: 'activeMovie',
@@ -17,12 +23,10 @@ const activeMovieSlice = createSlice({
   reducers: {
     setActive: (state, { payload }) => {
       state.activeMovie = payload;
+      localStorage.setItem('activeMovie', JSON.stringify(payload));
     },
-    setInactive: (state) => {
-      state.activeMovie = null;
-    }
   }
 });
 
-export const { setActive, setInactive } = activeMovieSlice.actions;
+export const { setActive } = activeMovieSlice.actions;
 export default activeMovieSlice.reducer;

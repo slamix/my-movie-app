@@ -1,93 +1,108 @@
-import React from 'react';
-import { FilmSlateIcon, HeartIcon } from '@phosphor-icons/react';
+import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import MovieCreationOutlinedIcon from '@mui/icons-material/MovieCreationOutlined';
+import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
   return (
-    <header
-      style={{
-        width: '100%',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        background: 'white',
-        borderBottom: '1px solid var(--vkui--color_separator_common)',
+    <AppBar
+      position="sticky"
+      elevation={2}
+      sx={{
+        bgcolor: 'white',
+        color: 'text.primary',
+        borderBottom: '1px solid #e0e0e0',
         boxShadow: '0 4px 24px 0 rgba(0,0,0,0.10), 0 1.5px 4px 0 rgba(0,0,0,0.08)',
-        height: 56,
-        display: 'flex',
-        alignItems: 'center',
+        height: { xs: 48, sm: 56 },
         justifyContent: 'center',
       }}
     >
-      <nav
-        style={{
+      <Toolbar
+        sx={{
+          width: '100%',
+          minHeight: { xs: '48px !important', sm: '56px !important' },
+          px: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        disableGutters
+      >
+        <Box sx={{
           width: '100%',
           maxWidth: 1200,
+          mx: 'auto',
+          px: { xs: 1, sm: 4 },
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          paddingLeft: 'clamp(12px, 4vw, 32px)',
-          paddingRight: 'clamp(12px, 4vw, 32px)',
-        }}
-      >
-        {/* Кнопка-логотип */}
-        <button
-          onClick={() => navigate('/')}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--vkui--color_text_primary)',
-            fontWeight: 700,
-            fontSize: 20,
-            letterSpacing: -1,
-            cursor: 'pointer',
-            padding: 0,
-            margin: 0,
-          }}
-          aria-label="На главную"
-        >
-          My movie app
-        </button>
-        {/* Навигационные иконки */}
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          gap: { xs: 1, sm: 0 },
+        }}>
+          {/* Кнопка-логотип */}
+          <Button
             onClick={() => navigate('/')}
-            style={{
-              background: pathname === '/' ? 'var(--vkui--color_background_secondary)' : 'none',
-              border: 'none',
-              borderRadius: 8,
-              padding: 8,
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
+            sx={{
+              color: 'text.primary',
+              fontWeight: 700,
+              fontSize: { xs: 16, sm: 20 },
+              letterSpacing: -1,
+              textTransform: 'none',
+              p: 0,
+              m: 0,
+              minWidth: 0,
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+              maxWidth: { xs: 160, sm: 240 },
             }}
-            aria-label="Главная"
+            aria-label="На главную"
           >
-            <FilmSlateIcon size={24} color={pathname === '/' ? '#ffb300' : 'var(--vkui--color_text_primary)'} />
-          </button>
-          <button
-            onClick={() => navigate('/favorites')}
-            style={{
-              background: pathname === '/favorites' ? 'var(--vkui--color_background_secondary)' : 'none',
-              border: 'none',
-              borderRadius: 8,
-              padding: 8,
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
-              transition: 'background 0.2s',
-            }}
-            aria-label="Избранное"
-          >
-            <HeartIcon size={24} color={pathname === '/favorites' ? '#ff5c5c' : 'var(--vkui--color_text_primary)'} />
-          </button>
-        </div>
-      </nav>
-    </header>
+            My movie app
+          </Button>
+          {/* Навигационные иконки */}
+          <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 1.5 } }}>
+            <IconButton
+              onClick={() => navigate('/')}
+              sx={{
+                bgcolor: pathname === '/' ? '#f5f5f5' : 'transparent',
+                borderRadius: 2,
+                p: { xs: 0.5, sm: 1 },
+                transition: 'background 0.2s',
+              }}
+              aria-label="Главная"
+            >
+              <MovieCreationOutlinedIcon sx={{ color: pathname === '/' ? '#ffb300' : 'text.primary', fontSize: { xs: 22, sm: 24 } }} />
+            </IconButton>
+            <IconButton
+              onClick={() => navigate('/favorites')}
+              sx={{
+                bgcolor: pathname === '/favorites' ? '#f5f5f5' : 'transparent',
+                borderRadius: 2,
+                p: { xs: 0.5, sm: 1 },
+                transition: 'background 0.2s',
+              }}
+              aria-label="Избранное"
+            >
+              {pathname === '/favorites' ? (
+                <FavoriteIcon sx={{ color: '#ff5c5c', fontSize: { xs: 22, sm: 24 } }} />
+              ) : (
+                <FavoriteBorderIcon sx={{ color: 'text.primary', fontSize: { xs: 22, sm: 24 } }} />
+              )}
+            </IconButton>
+          </Box>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 
