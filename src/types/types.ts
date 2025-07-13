@@ -15,3 +15,17 @@ export interface MoviesResponse {
   total: number;
   limit: number;
 }
+
+export type FilterState = {
+  genres: string[];
+  year: number[];
+  minRating: number;
+  maxRating: number;
+};
+
+export interface FormState {
+  genres: string[];
+  year: string;
+  minRating: string;
+  maxRating: string;
+}

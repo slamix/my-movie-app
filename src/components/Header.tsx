@@ -11,7 +11,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
+
+  const go = (to: string) => {
+    navigate(`${to}${search}`, { replace: false });
+  };
 
   return (
     <AppBar
@@ -37,20 +41,22 @@ const Header: React.FC = () => {
         }}
         disableGutters
       >
-        <Box sx={{
-          width: '100%',
-          maxWidth: 1200,
-          mx: 'auto',
-          px: { xs: 1, sm: 4 },
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: { xs: 'wrap', sm: 'nowrap' },
-          gap: { xs: 1, sm: 0 },
-        }}>
-          {/* Кнопка-логотип */}
+        <Box
+          sx={{
+            width: '100%',
+            maxWidth: 1200,
+            mx: 'auto',
+            px: { xs: 1, sm: 4 },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: { xs: 'wrap', sm: 'nowrap' },
+            gap: { xs: 1, sm: 0 },
+          }}
+        >
+          {/* Логотип */}
           <Button
-            onClick={() => navigate('/')}
+            onClick={() => go('/')}
             sx={{
               color: 'text.primary',
               fontWeight: 700,
@@ -69,10 +75,11 @@ const Header: React.FC = () => {
           >
             My movie app
           </Button>
-          {/* Навигационные иконки */}
+
+          {/* Навигация */}
           <Box sx={{ display: 'flex', gap: { xs: 0.5, sm: 1.5 } }}>
             <IconButton
-              onClick={() => navigate('/')}
+              onClick={() => go('/')}
               sx={{
                 bgcolor: pathname === '/' ? '#f5f5f5' : 'transparent',
                 borderRadius: 2,
@@ -81,10 +88,16 @@ const Header: React.FC = () => {
               }}
               aria-label="Главная"
             >
-              <MovieCreationOutlinedIcon sx={{ color: pathname === '/' ? '#ffb300' : 'text.primary', fontSize: { xs: 22, sm: 24 } }} />
+              <MovieCreationOutlinedIcon
+                sx={{
+                  color: pathname === '/' ? '#ffb300' : 'text.primary',
+                  fontSize: { xs: 22, sm: 24 },
+                }}
+              />
             </IconButton>
+
             <IconButton
-              onClick={() => navigate('/favorites')}
+              onClick={() => go('/favorites')}
               sx={{
                 bgcolor: pathname === '/favorites' ? '#f5f5f5' : 'transparent',
                 borderRadius: 2,
@@ -94,9 +107,13 @@ const Header: React.FC = () => {
               aria-label="Избранное"
             >
               {pathname === '/favorites' ? (
-                <FavoriteIcon sx={{ color: '#ff5c5c', fontSize: { xs: 22, sm: 24 } }} />
+                <FavoriteIcon
+                  sx={{ color: '#ff5c5c', fontSize: { xs: 22, sm: 24 } }}
+                />
               ) : (
-                <FavoriteBorderIcon sx={{ color: 'text.primary', fontSize: { xs: 22, sm: 24 } }} />
+                <FavoriteBorderIcon
+                  sx={{ color: 'text.primary', fontSize: { xs: 22, sm: 24 } }}
+                />
               )}
             </IconButton>
           </Box>

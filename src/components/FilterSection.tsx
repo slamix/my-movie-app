@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import Paper from '@mui/material/Paper';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -8,18 +10,64 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { genreOptions, yearOptions } from '../constants/FilterSection.constants';
-import type { FilterState } from '../constants/FilterSection.constants';
+import type { FormState } from '../types/types';
 
-const FilterSection = ({ onApply }: { onApply: (filters: FilterState) => void }) => {
-  const [genre, setGenre] = useState('all');
-  const [year, setYear] = useState('all');
-  const [minRating, setMinRating] = useState('1.0');
-  const [maxRating, setMaxRating] = useState('10.0');
+const defaultValues: FormState = {
+  genres: ['Все жанры'],
+  year: 'all',
+  minRating: '0.0',
+  maxRating: '10.0',
+};
+
+const FilterSection = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { control, handleSubmit, watch, reset } = useForm<FormState>({
+    defaultValues,
+    mode: 'onChange',
+  });
+
+  useEffect(() => {
+    const vals: Partial<FormState> = {};
+    const g = searchParams.get('genres');
+    if (g) vals.genres = g.split(',');
+    const y = searchParams.get('year');
+    if (y) vals.year = y;
+    const minRating = searchParams.get('minRating');
+    if (minRating) vals.minRating = minRating;
+    const maxRating = searchParams.get('maxRating');
+    if (maxRating) vals.maxRating = maxRating;
+    reset({ ...defaultValues, ...vals });
+  }, [reset, searchParams]);
+
+  const onApply = (values: FormState) => {
+    const params: Record<string, string> = {};
+    if (!values.genres.includes('Все жанры')) {
+      params.genres = values.genres.join(',');
+    }
+    if (values.year !== 'all') {
+      params.year = values.year;
+    }
+    if (values.minRating !== defaultValues.minRating) {
+      params.minRating = values.minRating;
+    }
+    if (values.maxRating !== defaultValues.maxRating) {
+      params.maxRating = values.maxRating;
+    }
+    setSearchParams(params, { replace: true });
+  };
+
+  const onReset = () => {
+    reset(defaultValues);
+    setSearchParams({});
+  };
+  
+  const minRating = watch('minRating');
+  const maxRating = watch('maxRating');
 
   return (
     <Paper
       component="form"
-      onSubmit={e => { e.preventDefault(); onApply({ genres: genre === 'all' ? [] : [genre], year, minRating, maxRating }); }}
+      onSubmit={handleSubmit(onApply)}
       sx={{
         my: 2,
         p: 3,
@@ -30,80 +78,178 @@ const FilterSection = ({ onApply }: { onApply: (filters: FilterState) => void })
         gap: 2.5,
         alignItems: 'end',
         border: '1.5px solid #e0e0e0',
+        maxWidth: 1200,
+        mx: 'auto',
+        pl: { xs: 1, sm: 2.5 },
+        pr: { xs: 1, sm: 6 },
       }}
     >
+      {/* Жанр */}
       <FormControl fullWidth>
         <InputLabel id="genre-label">Жанр</InputLabel>
-        <Select
-          labelId="genre-label"
-          id="genre"
-          value={genre}
-          label="Жанр"
-          onChange={e => setGenre(e.target.value)}
-        >
-          <MenuItem value="all">Все жанры</MenuItem>
-          {genreOptions.map(g => (
-            <MenuItem key={g} value={g}>{g}</MenuItem>
-          ))}
-        </Select>
+        <Controller
+          name="genres"
+          control={control}
+          render={({ field }) => (
+            <Select
+              {...field}
+              labelId="genre-label"
+              id="genre"
+              label="Жанр"
+              multiple
+              value={field.value}
+              renderValue={(selected) =>
+                Array.isArray(selected) && selected.includes('Все жанры')
+                  ? 'Все жанры'
+                  : Array.isArray(selected)
+                  ? selected.join(', ')
+                  : selected
+              }
+              onChange={(e) => {
+                let v = e.target.value;
+                if (typeof v === 'string') {
+                  v = v.split(',');
+                }
+                const newValues = v as string[];
+                const last = newValues[newValues.length - 1];
+                if (last === 'Все жанры') {
+                  field.onChange(['Все жанры']);
+                } else {
+                  field.onChange(newValues.filter(g => g !== 'Все жанры'));
+                }
+              }}
+            >
+              <MenuItem value="Все жанры">Все жанры</MenuItem>
+              {genreOptions.map(g => (
+                <MenuItem key={g} value={g}>
+                  {g}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
       </FormControl>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <TextField
-          id="minRating"
-          label="Рейтинг от"
-          type="number"
-          inputProps={{ min: 1, max: 10, step: 0.1 }}
-          value={minRating}
-          onChange={e => setMinRating(e.target.value)}
-          sx={{ width: 80 }}
-        />
-        <Box sx={{ color: '#888', fontSize: 18, px: 1 }}>–</Box>
-        <TextField
-          id="maxRating"
-          label="до"
-          type="number"
-          inputProps={{ min: 1, max: 10, step: 0.1 }}
-          value={maxRating}
-          onChange={e => setMaxRating(e.target.value)}
-          sx={{ width: 80 }}
-        />
+
+      {/* Рейтинг */}
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Controller
+            name="minRating"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                id="minRating"
+                label="Рейтинг от"
+                type="number"
+                inputProps={{
+                  min: isNaN(parseFloat(maxRating)) ? 0 : 0,
+                  max: isNaN(parseFloat(maxRating)) ? 10 : parseFloat(maxRating),
+                  step: 0.1,
+                }}
+                sx={{ width: 120 }}
+              />
+            )}
+          />
+          <Box sx={{ color: '#888', fontSize: 18, px: 1, alignSelf: 'center' }}>–</Box>
+          <Controller
+            name="maxRating"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                id="maxRating"
+                label="до"
+                type="number"
+                inputProps={{
+                  min: isNaN(parseFloat(minRating)) ? 1 : parseFloat(minRating),
+                  max: 10,
+                  step: 0.1,
+                }}
+                sx={{ width: 120 }}
+              />
+            )}
+          />
+        </Box>
       </Box>
+
+      {/* Год выпуска */}
       <FormControl fullWidth>
         <InputLabel id="year-label">Год выпуска</InputLabel>
-        <Select
-          labelId="year-label"
-          id="year"
-          value={year}
-          label="Год выпуска"
-          onChange={e => setYear(e.target.value)}
-        >
-          {yearOptions.map(opt => (
-            <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-          ))}
-        </Select>
+        <Controller
+          name="year"
+          control={control}
+          render={({ field }) => (
+            <Select {...field} labelId="year-label" id="year" label="Год выпуска">
+              {yearOptions.map(opt => (
+                <MenuItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
       </FormControl>
-      <Button
-        type="submit"
-        variant="contained"
+
+      {/* Кнопки */}
+      <Box
         sx={{
-          py: 1.5,
-          borderRadius: 2,
-          background: 'linear-gradient(90deg, #ff6600 0%, #ffb300 100%)',
-          color: '#fff',
-          fontWeight: 700,
-          fontSize: 18,
-          boxShadow: '0 2px 8px 0 rgba(255, 102, 0, 0.10)',
-          minWidth: 120,
-          textTransform: 'none',
-          '&:hover': {
-            background: 'linear-gradient(90deg, #ffb300 0%, #ff6600 100%)',
-          },
+          display: 'flex',
+          flexDirection: 'row',
+          gap: { xs: 1.5, sm: 2 },
+          alignItems: 'center',
+          width: '100%',
+          mt: { xs: 2, sm: 0 },
         }}
       >
-        Найти
-      </Button>
+        <Button
+          type="button"
+          variant="outlined"
+          sx={{
+            height: 56,
+            minWidth: { xs: 'unset', sm: 140 },
+            width: { xs: '50%', sm: 'auto' },
+            borderRadius: 2,
+            fontWeight: 700,
+            fontSize: 18,
+            textTransform: 'none',
+            borderColor: '#ffb300',
+            color: '#ffb300',
+            background: '#fff',
+            '&:hover': {
+              borderColor: '#ff6600',
+              color: '#ff6600',
+              background: '#fff7e6',
+            },
+          }}
+          onClick={onReset}
+        >
+          Сбросить
+        </Button>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            height: 56,
+            minWidth: { xs: 'unset', sm: 140 },
+            width: { xs: '50%', sm: 'auto' },
+            borderRadius: 2,
+            background: 'linear-gradient(90deg, #ff6600 0%, #ffb300 100%)',
+            color: '#fff',
+            fontWeight: 700,
+            fontSize: 18,
+            boxShadow: '0 2px 8px 0 rgba(255, 102, 0, 0.10)',
+            textTransform: 'none',
+            '&:hover': {
+              background: 'linear-gradient(90deg, #ffb300 0%, #ff6600 100%)',
+            },
+          }}
+        >
+          Найти
+        </Button>
+      </Box>
     </Paper>
   );
 };
 
-export default FilterSection; 
+export default FilterSection;

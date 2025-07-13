@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setActive } from '../slices/activeMovieSlice';
-import type { APIMovie } from '../api/types';
+import type { APIMovie } from '../types/types';
 import { removeFavorite } from '../slices/favoritesSlice';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
@@ -15,12 +15,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import type { RootState } from '../slices';
 import { setOpen } from '../slices/modalSlice';
 
-interface MovieCardProps {
-  movie: APIMovie;
-  maxWidth?: number;
-}
-
-const MovieCard: React.FC<MovieCardProps> = ({ movie, maxWidth = 340 }) => {
+const MovieCard = ({ movie }: { movie: APIMovie}) => {
   const dispatch = useDispatch();
   const favorites = useSelector((state: RootState) => state.favorites.favorites);
   const isFavorite = favorites.some((f: APIMovie) => f.id === movie.id);
@@ -39,7 +34,7 @@ const MovieCard: React.FC<MovieCardProps> = ({ movie, maxWidth = 340 }) => {
     <Card
       sx={{
         width: '100%',
-        maxWidth: maxWidth,
+        maxWidth: '320px',
         minWidth: 0,
         height: '100%',
         display: 'flex',

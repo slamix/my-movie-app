@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../slices';
 import MovieCard from '../components/MovieCard';
-import type { APIMovie } from '../api/types';
+import type { APIMovie } from '../types/types';
 
 const FavoritesPage: React.FC = () => {
   const favorites = useSelector((state: RootState) => state.favorites.favorites);
@@ -20,7 +20,7 @@ const FavoritesPage: React.FC = () => {
           </Typography>
         </Box>
       ) : (
-        <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, sm: 4 }, py: 4 }}>
+        <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 1, sm: 4 }, py: 4 }}>
           <Box
             sx={{
               display: 'grid',
@@ -38,7 +38,7 @@ const FavoritesPage: React.FC = () => {
           >
             {favorites.map((movie: APIMovie) => (
               <Box key={movie.id} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', minWidth: 0 }}>
-                <MovieCard movie={movie} maxWidth={320} />
+                <MovieCard movie={movie} />
               </Box>
             ))}
           </Box>

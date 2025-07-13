@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import type { APIMovie } from "../api/types";
+import type { APIMovie } from "../types/types";
 
 type ActiveMovie = APIMovie | null
 

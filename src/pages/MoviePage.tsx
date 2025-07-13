@@ -7,7 +7,7 @@ import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import type { APIMovie } from '../api/types';
+import type { APIMovie } from '../types/types';
 import { removeFavorite } from '../slices/favoritesSlice';
 import { setOpen } from '../slices/modalSlice';
 

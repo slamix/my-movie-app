@@ -3,16 +3,17 @@
   MovieQueryBuilder,
   SPECIAL_VALUE,
   SortType,
-  Filter,
-  MovieFields,
 } from '@openmoviedb/kinopoiskdev_client';
+import type { FilterState } from '../constants/FilterSection.constants';
 
 const kp = new KinopoiskDev('ВАШ ТОКЕН');
 
 // Получение списка фильмов за 2020-2023 годы с рейтингом от 7.5 до 10, у которых есть постер и которые созданы в России или США
 // Этот пример использует query builder
-const getRelatedByQueryBuilderMovies = async () => {
+const getRelatedByQueryBuilderMovies = async (filters: FilterState ) => {
   // Создаем билдер запросов для фильмов
+  const { genres, year, minRating, maxRating } = filters;
+
   const queryBuilder = new MovieQueryBuilder();
 
   // Выбираем поля, которые мы хотим получить в ответе
