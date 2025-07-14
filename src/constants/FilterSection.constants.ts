@@ -1,3 +1,5 @@
+import type { FormState } from "../types/types";
+
 export const genreOptions = [
   "комедия", "мультфильм", "ужасы", "фантастика", "триллер", "боевик", "мелодрама", "детектив", "приключения", "фэнтези", "военный", "семейный", "драма", "документальный", "детский", "криминал", "биография", "вестерн"
 ];
@@ -12,3 +14,10 @@ export const yearOptions = [
   { value: '2000-2009', label: '2000-2009' },
   { value: '1990-1999', label: '1990-1999' },
 ];
+
+export const defaultValues: FormState = {
+  genres: ['Все жанры'],
+  year: 'all',
+  minRating: '0.0',
+  maxRating: '10.0',
+};

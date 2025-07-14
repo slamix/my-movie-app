@@ -29,3 +29,8 @@ export interface FormState {
   minRating: string;
   maxRating: string;
 }
+
+export interface MovieCardProps {
+  movie: APIMovie;
+  fromFavorites?: boolean;
+}

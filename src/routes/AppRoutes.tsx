@@ -8,6 +8,7 @@ const AppRoutes: React.FC = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />
     <Route path="/favorites" element={<FavoritesPage />} />
+    <Route path="/favorites/movie/:id" element={<MoviePage />} />
     <Route path="/movie/:id" element={<MoviePage />} />
     <Route path="*" element={<Navigate to="/" />} />
   </Routes>

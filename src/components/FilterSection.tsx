@@ -1,6 +1,6 @@
 import { useForm, Controller } from 'react-hook-form';
 import { useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import Paper from '@mui/material/Paper';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -11,13 +11,9 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { genreOptions, yearOptions } from '../constants/FilterSection.constants';
 import type { FormState } from '../types/types';
-
-const defaultValues: FormState = {
-  genres: ['Все жанры'],
-  year: 'all',
-  minRating: '0.0',
-  maxRating: '10.0',
-};
+import { defaultValues } from '../constants/FilterSection.constants';
+import { useInfiniteMovies } from '../hooks/useInfiniteMovies';
+import { getFiltersFromSearchParams } from '../utils/getFiltersFromSearchParams';
 
 const FilterSection = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -53,16 +49,22 @@ const FilterSection = () => {
     if (values.maxRating !== defaultValues.maxRating) {
       params.maxRating = values.maxRating;
     }
+    sessionStorage.setItem('movieAppFilters', JSON.stringify(params));
     setSearchParams(params, { replace: true });
   };
 
   const onReset = () => {
     reset(defaultValues);
+    sessionStorage.removeItem('movieAppFilters');
     setSearchParams({});
   };
   
   const minRating = watch('minRating');
   const maxRating = watch('maxRating');
+
+  const filters = useMemo(() => getFiltersFromSearchParams(searchParams), [searchParams]);
+
+  const { status } = useInfiniteMovies(filters);
 
   return (
     <Paper
@@ -205,6 +207,7 @@ const FilterSection = () => {
         <Button
           type="button"
           variant="outlined"
+          disabled={status === 'pending'}
           sx={{
             height: 56,
             minWidth: { xs: 'unset', sm: 140 },
@@ -229,6 +232,7 @@ const FilterSection = () => {
         <Button
           type="submit"
           variant="contained"
+          disabled={status === 'pending'}
           sx={{
             height: 56,
             minWidth: { xs: 'unset', sm: 140 },

@@ -40,7 +40,7 @@ const AddToFavoritesModal = () => {
         <CloseIcon />
       </IconButton>
       <DialogTitle sx={{ fontWeight: 700, fontSize: 22, pb: 1, pr: 5 }}>
-        {movie.name}
+        Фильм «{movie.name}»
       </DialogTitle>
       <DialogContent sx={{ pt: 0 }}>
         <Typography variant="h6" sx={{ mb: 1 }}>Добавить фильм в избранное?</Typography>

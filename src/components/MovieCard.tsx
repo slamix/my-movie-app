@@ -14,9 +14,9 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import type { RootState } from '../slices';
 import { setOpen } from '../slices/modalSlice';
+import type { MovieCardProps } from '../types/types';
 
-
-const MovieCard = ({ movie }: { movie: APIMovie}) => {
+const MovieCard = ({ movie, fromFavorites }: MovieCardProps) => {
   const dispatch = useDispatch();
   const favorites = useSelector((state: RootState) => state.favorites.favorites);
   const isFavorite = favorites.some((f: APIMovie) => f.id === movie.id);
@@ -48,7 +48,7 @@ const MovieCard = ({ movie }: { movie: APIMovie}) => {
       }}
     >
       <Link
-        to={`/movie/${movie.id}`}
+        to={fromFavorites ? `/favorites/movie/${movie.id}` : `/movie/${movie.id}`}
         onClick={() => dispatch(setActive(movie))}
         style={{ textDecoration: 'none', color: 'inherit', display: 'block', flex: 1 }}
       >

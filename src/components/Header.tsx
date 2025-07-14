@@ -14,6 +14,17 @@ const Header: React.FC = () => {
   const { pathname, search } = useLocation();
 
   const go = (to: string) => {
+    if (to === '/') {
+      const saved = sessionStorage.getItem('movieAppFilters');
+      if (saved) {
+        const params = JSON.parse(saved);
+        const searchStr = new URLSearchParams(params).toString();
+        if (searchStr) {
+          navigate(`/?${searchStr}`, { replace: false });
+          return;
+        }
+      }
+    }
     navigate(`${to}${search}`, { replace: false });
   };
 
@@ -85,6 +96,8 @@ const Header: React.FC = () => {
                 borderRadius: 2,
                 p: { xs: 0.5, sm: 1 },
                 transition: 'background 0.2s',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                minWidth: 56,
               }}
               aria-label="Главная"
             >
@@ -94,6 +107,20 @@ const Header: React.FC = () => {
                   fontSize: { xs: 22, sm: 24 },
                 }}
               />
+              <Box
+                component="span"
+                sx={{
+                  fontSize: { xs: 11, sm: 13 },
+                  color: pathname === '/' ? '#ffb300' : '#888',
+                  fontWeight: pathname === '/' ? 700 : 500,
+                  mt: 0.2,
+                  letterSpacing: 0.2,
+                  lineHeight: 1.1,
+                  userSelect: 'none',
+                }}
+              >
+                Фильмы
+              </Box>
             </IconButton>
 
             <IconButton
@@ -103,6 +130,8 @@ const Header: React.FC = () => {
                 borderRadius: 2,
                 p: { xs: 0.5, sm: 1 },
                 transition: 'background 0.2s',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                minWidth: 56,
               }}
               aria-label="Избранное"
             >
@@ -115,6 +144,20 @@ const Header: React.FC = () => {
                   sx={{ color: 'text.primary', fontSize: { xs: 22, sm: 24 } }}
                 />
               )}
+              <Box
+                component="span"
+                sx={{
+                  fontSize: { xs: 11, sm: 13 },
+                  color: pathname === '/favorites' ? '#ff5c5c' : '#888',
+                  fontWeight: pathname === '/favorites' ? 700 : 500,
+                  mt: 0.2,
+                  letterSpacing: 0.2,
+                  lineHeight: 1.1,
+                  userSelect: 'none',
+                }}
+              >
+                Избранное
+              </Box>
             </IconButton>
           </Box>
         </Box>
