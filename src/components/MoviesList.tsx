@@ -1,90 +1,96 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import MovieCard from './MovieCard';
-import { buildAndFetchMovies } from '../api/buildAndFetchMovies';
-import type { APIMovie } from '../types/types';
+import { useInfiniteMovies } from '../hooks/useInfiniteMovies';
 import type { FilterState } from '../types/types';
 
-export const MoviesList: React.FC = () => {
+const MoviesList: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const [movies, setMovies] = useState<APIMovie[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const sentinel = useRef<HTMLDivElement>(null);
 
   const filters: FilterState = useMemo(() => {
-    const genresParam = searchParams.get('genres');
-    const genres = genresParam ? genresParam.split(',') : [];
-
-    const rawYear = searchParams.get('year');
+    const genresOrNot = searchParams.get('genres');
+    const genres = genresOrNot ? genresOrNot.split(',') : [];
+    const years = searchParams.get('year');
+    const now = new Date().getFullYear();
     let year: number[];
-    if (!rawYear || rawYear === 'all') {
-      year = [1990, 2025];
-    } else if (rawYear.includes('-')) {
-      const [from, to] = rawYear.split('-').map(v => parseInt(v));
-      year = [from, to];
+    if (!years || years === 'all') year = [1990, now];
+    else if (years.includes('-')) {
+      const [a, b] = years.split('-').map((year) => parseInt(year));
+      year = [a, b];
     } else {
-      const y = parseInt(rawYear);
+      const y = parseInt(years);
       year = [y, y];
     }
-
     const minRating = parseFloat(searchParams.get('minRating') ?? '0.0');
     const maxRating = parseFloat(searchParams.get('maxRating') ?? '10.0');
-
     return { genres, year, minRating, maxRating };
   }, [searchParams]);
 
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    status,
+    error,
+  } = useInfiniteMovies(filters);
+
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    const getMovies = async () => {
-      try {
-        // @ts-expect-error dont know how to type this
-        const { docs } = await buildAndFetchMovies(filters);
-        setMovies(docs);
-      } catch(error) {
-        console.log(error);
-        setError('Не удалось загрузить фильмы')
-      } finally {
-        setLoading(false)
-      }
-    }
-    getMovies();
-  }, [filters]);
+    if (!sentinel.current || !hasNextPage) return;
+    const obs = new IntersectionObserver(
+      ([e]) => e.isIntersecting && fetchNextPage(),
+      { rootMargin: '200px' }
+    );
+    obs.observe(sentinel.current);
+    return () => obs.disconnect();
+  }, [fetchNextPage, hasNextPage]);
 
-  if (loading) {
-    return <Box sx={{ textAlign: 'center', py: 4 }}>Загрузка фильмов…</Box>;
-  }
-
-  if (error) {
-    return <Box sx={{ textAlign: 'center', py: 4, color: 'red' }}>{error}</Box>;
-  }
+  if (status === 'pending')
+    return (
+      <Box sx={{ textAlign: 'center', py: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  if (status === 'error')
+    return (
+      <Box sx={{ textAlign: 'center', py: 4, color: 'error.main' }}>
+        Ошибка: {error!.message}
+      </Box>
+    );
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 1, sm: 4 }, py: 2 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', py: 3 }}>
       <Box
         sx={{
           display: 'grid',
+          gap: 3,
           gridTemplateColumns: {
-            xs: 'repeat(1,1fr)',
+            xs: '1fr',
             sm: 'repeat(2,1fr)',
             md: 'repeat(3,1fr)',
             lg: 'repeat(4,1fr)',
           },
-          gap: 3,
         }}
       >
-        {movies.map(movie => (
-          <Box
-            key={movie.id}
-            sx={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}
-          >
-            <MovieCard movie={movie}/>
-          </Box>
-        ))}
+        {data?.pages.flatMap((page) =>
+          page?.docs.map((movie) => (
+            <Box
+              key={movie.id}
+              sx={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}
+            >
+              <MovieCard movie={movie} />
+            </Box>
+          ))
+        )}
       </Box>
-      {movies.length === 0 && (
-        <Box sx={{ textAlign: 'center', py: 4 }}>Фильмы не найдены</Box>
+      <div ref={sentinel} style={{ height: 1 }} />
+      {isFetchingNextPage && (
+        <Box sx={{ textAlign: 'center', py: 2 }}>
+          <CircularProgress size={24} />
+        </Box>
       )}
     </Box>
   );

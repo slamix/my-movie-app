@@ -15,6 +15,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import type { RootState } from '../slices';
 import { setOpen } from '../slices/modalSlice';
 
+
 const MovieCard = ({ movie }: { movie: APIMovie}) => {
   const dispatch = useDispatch();
   const favorites = useSelector((state: RootState) => state.favorites.favorites);

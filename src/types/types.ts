@@ -1,6 +1,6 @@
 export interface APIMovie {
-  id: string;
-  name: string;
+  id: string | number;
+  name: string | undefined;
   poster: { url: string };
   year: number;
   rating: { kp: number };
