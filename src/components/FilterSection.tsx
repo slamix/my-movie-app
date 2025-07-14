@@ -161,7 +161,7 @@ const FilterSection = () => {
               <TextField
                 {...field}
                 id="maxRating"
-                label="до"
+                label="Рейтинг до"
                 type="number"
                 inputProps={{
                   min: isNaN(parseFloat(minRating)) ? 1 : parseFloat(minRating),
